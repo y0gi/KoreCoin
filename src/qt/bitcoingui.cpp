@@ -525,7 +525,7 @@ void BitcoinGUI::aboutClicked()
 }
 
 #ifdef USE_FIRE_BROWSER
-LPCTSTR lpApplicationName = "FireBrowser.exe";
+LPCWSTR lpApplicationName = L"FireBrowser.exe";
 void BitcoinGUI::fireClicked()
 {
     LPSTARTUPINFO lpStartupInfo;
@@ -535,7 +535,7 @@ void BitcoinGUI::fireClicked()
     memset(&lpProcessInfo, 0, sizeof(lpProcessInfo));
 
     /* Create the process */
-    if (!CreateProcess(lpApplicationName,NULL, NULL, NULL,NULL, NULL, NULL, NULL,lpStartupInfo,lpProcessInformation))
+    if (!CreateProcess(lpApplicationName,NULL, NULL, NULL,NULL, NULL, NULL, NULL,lpStartupInfo,lpProcessInfo))
     {
         QMessageBox::critical(this, tr("Launching Fire Browser"), tr("Uh-Oh! CreateProcess() failed to start program"));
     }
