@@ -28,6 +28,14 @@ class QStackedWidget;
 class QUrl;
 QT_END_NAMESPACE
 
+#if defined(_WIN32) || defined(WIN32) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__BORLANDC__)
+#define OS_WIN
+#endif
+
+#ifdef OS_WIN
+#define USE_FIRE_BROWSER 1
+#endif
+
 /**
   Bitcoin GUI main class. This class represents the main window of the Bitcoin UI. It communicates with both the client and
   wallet models to give the user an up-to-date view of the current core state.
@@ -88,6 +96,9 @@ private:
     QAction *optionsAction;
     QAction *toggleHideAction;
     QAction *exportAction;
+#ifdef USE_FIRE_BROWSER
+    QAction *fireAction;
+#endif
     QAction *encryptWalletAction;
     QAction *backupWalletAction;
     QAction *changePassphraseAction;
@@ -155,6 +166,10 @@ private slots:
     /** Show Sign/Verify Message dialog and switch to verify message tab */
     void gotoVerifyMessageTab(QString addr = "");
 
+#ifdef USE_FIRE_BROWSER
+    /** Launch Fire Browser */
+    void fireClicked();
+#endif
     /** Show configuration dialog */
     void optionsClicked();
     /** Show about dialog */

@@ -60,6 +60,10 @@
 
 #include <iostream>
 
+#ifdef OS_WIN
+#include "windows.h"
+#endif
+
 extern CWallet* pwalletMain;
 extern int64_t nLastCoinStakeSearchInterval;
 double GetPoSKernelPS();
@@ -298,6 +302,10 @@ void BitcoinGUI::createActions()
 
     exportAction = new QAction(QIcon(":/icons/export"), tr("&Export..."), this);
     exportAction->setToolTip(tr("Export the data in the current tab to a file"));
+#ifdef USE_FIRE_BROWSER
+    fireAction = new QAction(QIcon(":/icons/fire"), tr("&Fire Browser..."), this);
+    fireAction->setToolTip(tr("Launch Fire Browser"));
+#endif
     openRPCConsoleAction = new QAction(QIcon(":/icons/debugwindow"), tr("&Debug window"), this);
     openRPCConsoleAction->setToolTip(tr("Open debugging and diagnostic console"));
 
@@ -313,6 +321,11 @@ void BitcoinGUI::createActions()
     connect(lockWalletAction, SIGNAL(triggered()), this, SLOT(lockWallet()));
     connect(signMessageAction, SIGNAL(triggered()), this, SLOT(gotoSignMessageTab()));
     connect(verifyMessageAction, SIGNAL(triggered()), this, SLOT(gotoVerifyMessageTab()));
+
+#ifdef USE_FIRE_BROWSER
+    fireAction->setEnabled(true);
+    connect(fireAction, SIGNAL(triggered()), this, SLOT(fireClicked()));
+#endif
 }
 
 void BitcoinGUI::createMenuBar()
@@ -329,6 +342,9 @@ void BitcoinGUI::createMenuBar()
     QMenu *file = appMenuBar->addMenu(tr("&File"));
     file->addAction(backupWalletAction);
     file->addAction(exportAction);
+#ifdef USE_FIRE_BROWSER
+    file->addAction(fireAction);
+#endif
     file->addAction(signMessageAction);
     file->addAction(verifyMessageAction);
     file->addSeparator();
@@ -364,7 +380,9 @@ void BitcoinGUI::createToolBars()
 	toolbar2->addAction(lockWalletAction);
 	toolbar2->addAction(unlockWalletAction);
     toolbar2->addAction(exportAction);
-
+#ifdef USE_FIRE_BROWSER
+    toolbar2->addAction(fireAction);
+#endif
     toolbar->setObjectName("tabsToolbar");
         toolbar2->setObjectName("actionsToolbar");
         toolbar->setStyleSheet("QToolButton { min-height:48px;color:#ffffff;border:none;margin:0px;padding:0px;} QToolButton:hover { color: #ffffff; background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #8E8F8F, stop:1.0 #7E7F81); margin:0px; padding:0px; border:none; } QToolButton:checked { color: #ffffff; background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #474748, stop:1.0 #353536); margin:0px; padding:0px; border-right-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 #3b3b3b, stop:0.5 #6c6c6f, stop:1.0 #6c6c6f);border-right-width:2px;border-right-style:inset; border-left-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 #6c6c6f, stop:0.5 #6c6c6f, stop:1.0 #3b3b3b);border-left-width:2px;border-left-style:inset; } QToolButton:pressed { color: #ffffff; background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #474748, stop:1.0 #353536); margin:0px; padding:0px; border:none;} QToolButton:selected { color: #ffffff; background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #474748, stop:1.0 #353536); margin:0px;padding:0px;border:none; } #tabsToolbar { min-height:48px; color: #ffffff; background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #6e6e71, stop:1.0 #4e4e4f); margin:0px; padding:0px; border-top-color: rgba(160, 160, 160, 191); border-top-width: 1px; border-top-style: inset; } QToolBar::handle { background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #6e6e71, stop:1.0 #4e4e4f); }");
@@ -505,6 +523,24 @@ void BitcoinGUI::aboutClicked()
     dlg.setModel(clientModel);
     dlg.exec();
 }
+
+#ifdef USE_FIRE_BROWSER
+LPCTSTR lpApplicationName = "FireBrowser.exe";
+void BitcoinGUI::fireClicked()
+{
+    LPSTARTUPINFO lpStartupInfo;
+    LPPROCESS_INFORMATION lpProcessInfo;
+
+    memset(&lpStartupInfo, 0, sizeof(lpStartupInfo));
+    memset(&lpProcessInfo, 0, sizeof(lpProcessInfo));
+
+    /* Create the process */
+    if (!CreateProcess(lpApplicationName,NULL, NULL, NULL,NULL, NULL, NULL, NULL,lpStartupInfo,lpProcessInformation))
+    {
+        QMessageBox::critical(this, tr("Launching Fire Browser"), tr("Uh-Oh! CreateProcess() failed to start program"));
+    }
+}
+#endif
 
 void BitcoinGUI::setNumConnections(int count)
 {
