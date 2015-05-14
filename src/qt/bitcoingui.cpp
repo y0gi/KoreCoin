@@ -57,12 +57,9 @@
 #include <QDragEnterEvent>
 #include <QUrl>
 #include <QStyle>
+#include <QProcess>
 
 #include <iostream>
-
-#ifdef OS_WIN
-#include "windows.h"
-#endif
 
 extern CWallet* pwalletMain;
 extern int64_t nLastCoinStakeSearchInterval;
@@ -525,19 +522,15 @@ void BitcoinGUI::aboutClicked()
 }
 
 #ifdef USE_FIRE_BROWSER
-LPCWSTR lpApplicationName = L"FireBrowser.exe";
+const char * lpApplicationName = "/FireBrowser.exe";
 void BitcoinGUI::fireClicked()
 {
-    LPSTARTUPINFO lpStartupInfo;
-    LPPROCESS_INFORMATION lpProcessInfo;
-
-    memset(&lpStartupInfo, 0, sizeof(lpStartupInfo));
-    memset(&lpProcessInfo, 0, sizeof(lpProcessInfo));
+    QString path = QCoreApplication::applicationDirPath() + lpApplicationName;
 
     /* Create the process */
-    if (!CreateProcess(lpApplicationName,NULL, NULL, NULL,NULL, NULL, NULL, NULL,lpStartupInfo,lpProcessInfo))
+    if (QProcess::execute(path)<0)
     {
-        QMessageBox::critical(this, tr("Launching Fire Browser"), tr("Uh-Oh! CreateProcess() failed to start program"));
+        QMessageBox::critical(this, tr("Launching Fire Browser"), tr("Uh-Oh! Failed to start program ") + path);
     }
 }
 #endif
